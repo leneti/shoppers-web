@@ -1,10 +1,16 @@
 import { useState } from "react";
 import "./App.css";
+import { firebaseConfig } from "./config/secret";
+import { initializeApp } from "firebase/app";
+
 import { Box, Stepper, Button, Group } from "@mantine/core";
-import FirstStep from "./steps/first";
+import FirstStep from "./steps/First";
+
+initializeApp(firebaseConfig);
 
 function App() {
   const [active, setActive] = useState(0);
+
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () =>
@@ -24,7 +30,7 @@ function App() {
             description="Upload bill picture"
             allowStepSelect={active > 0}
           >
-            <FirstStep />
+            <FirstStep nextStep={nextStep} prevStep={prevStep} />
           </Stepper.Step>
           <Stepper.Step
             label="Second step"
@@ -44,15 +50,6 @@ function App() {
             Visit Splitwise to settle expenses
           </Stepper.Completed>
         </Stepper>
-
-        <Group position="center" mt="xl">
-          <Button variant="default" onClick={prevStep}>
-            Back
-          </Button>
-          <Button color="yellow" onClick={nextStep}>
-            {active > 1 ? "Finish" : "Next step"}
-          </Button>
-        </Group>
       </Box>
     </div>
   );
