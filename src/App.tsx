@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import { Box, Stepper, Button, Group } from "@mantine/core";
+import FirstStep from "./steps/first";
 
 function App() {
   const [active, setActive] = useState(0);
@@ -23,7 +24,7 @@ function App() {
             description="Upload bill picture"
             allowStepSelect={active > 0}
           >
-            Upload a picture of the bill
+            <FirstStep />
           </Stepper.Step>
           <Stepper.Step
             label="Second step"
