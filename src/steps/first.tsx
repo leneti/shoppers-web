@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 
 import {
   ImageIcon,
@@ -16,11 +16,15 @@ import {
   Image,
   Button,
   Box,
+  LoadingOverlay,
 } from "@mantine/core";
 import { Dropzone, IMAGE_MIME_TYPE, DropzoneStatus } from "@mantine/dropzone";
 import { FileRejection } from "react-dropzone";
 import { useNotifications } from "@mantine/notifications";
 import { uploadFromBlobAsync } from "../api/Storage";
+import { Player, Controls } from "@lottiefiles/react-lottie-player";
+import UploadingIcon from "../components/lottie/uploading.json";
+import ParsingIcon from "../components/lottie/parsing.json";
 
 function ImageUploadIcon({
   status,
@@ -58,6 +62,7 @@ export default function FirstStep({
   const notifications = useNotifications();
 
   const [image, setImage] = useState<File>();
+  const [isUploading, setisUploading] = useState(false);
 
   const acceptFiles = useCallback((files: File[]) => {
     const file = files?.[0];
@@ -99,12 +104,23 @@ export default function FirstStep({
       return;
     }
 
+    setisUploading(true);
+
     try {
       await uploadFromBlobAsync(URL.createObjectURL(image), image.name);
-      nextStep();
-    } catch (e) {
-      console.log(e);
+    } catch (_) {
+      setisUploading(false);
+      notifications.showNotification({
+        title: "Upload failed",
+        message:
+          "Could not upload the image to the database at this moment. Try again later",
+        color: "red",
+        icon: <Cross1Icon />,
+      });
     }
+
+    setisUploading(false);
+    nextStep();
   };
 
   const tryAgain = () => {
@@ -149,7 +165,28 @@ export default function FirstStep({
           )}
         </Dropzone>
       ) : (
-        <div style={{ width: 400, margin: "auto" }}>
+        <div
+          style={{
+            width: 400,
+            margin: "auto",
+            position: "relative",
+          }}
+        >
+          <LoadingOverlay
+            visible={isUploading}
+            radius={7}
+            loader={
+              <>
+                <Player
+                  autoplay
+                  loop
+                  src={UploadingIcon}
+                  style={{ height: "300px", width: "300px" }}
+                />
+                <Text size="md">Uploading image to Firebase...</Text>
+              </>
+            }
+          />
           <Image
             radius="md"
             src={URL.createObjectURL(image)}
@@ -157,6 +194,7 @@ export default function FirstStep({
           />
         </div>
       )}
+
       <Group position="center" mt="xl">
         {!!image && (
           <Button variant="default" onClick={tryAgain}>

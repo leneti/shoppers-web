@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@lottiefiles/react-lottie-player": "^3.4.2",
     "@mantine/core": "^3.6.9",
     "@mantine/dates": "^3.6.9",
     "@mantine/dropzone": "^3.6.9",
