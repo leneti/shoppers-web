@@ -101,6 +101,7 @@ export default function FirstStep({
 
     try {
       await uploadFromBlobAsync(URL.createObjectURL(image), image.name);
+      nextStep();
     } catch (e) {
       console.log(e);
     }
@@ -162,7 +163,7 @@ export default function FirstStep({
             Upload another
           </Button>
         )}
-        <Button color="yellow" onClick={nextStep}>
+        <Button color="yellow" onClick={tryUploadImage}>
           Next step
         </Button>
       </Group>
