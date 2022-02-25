@@ -3,13 +3,17 @@ import "./App.css";
 import { firebaseConfig } from "./config/secret";
 import { initializeApp } from "firebase/app";
 
-import { Box, Stepper, Button, Group } from "@mantine/core";
+import { Box, Stepper } from "@mantine/core";
 import FirstStep from "./steps/First";
 
 initializeApp(firebaseConfig);
 
 function App() {
   const [active, setActive] = useState(0);
+  const [imgStorage, setUrlAndPath] = useState<{ url: string; path: string }>({
+    url: "",
+    path: "",
+  });
 
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
@@ -30,7 +34,11 @@ function App() {
             description="Upload bill picture"
             allowStepSelect={active > 0}
           >
-            <FirstStep nextStep={nextStep} prevStep={prevStep} />
+            <FirstStep
+              nextStep={nextStep}
+              prevStep={prevStep}
+              setUrlAndPath={setUrlAndPath}
+            />
           </Stepper.Step>
           <Stepper.Step
             label="Second step"

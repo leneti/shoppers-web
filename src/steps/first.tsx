@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 
 import {
   ImageIcon,
@@ -22,9 +22,8 @@ import { Dropzone, IMAGE_MIME_TYPE, DropzoneStatus } from "@mantine/dropzone";
 import { FileRejection } from "react-dropzone";
 import { useNotifications } from "@mantine/notifications";
 import { uploadFromBlobAsync } from "../api/Storage";
-import { Player, Controls } from "@lottiefiles/react-lottie-player";
+import { Player } from "@lottiefiles/react-lottie-player";
 import UploadingIcon from "../components/lottie/uploading.json";
-import ParsingIcon from "../components/lottie/parsing.json";
 
 function ImageUploadIcon({
   status,
@@ -54,9 +53,13 @@ function getIconColor(status: DropzoneStatus, theme: MantineTheme) {
 export default function FirstStep({
   nextStep,
   prevStep,
+  setUrlAndPath,
 }: {
   nextStep: () => void;
   prevStep: () => void;
+  setUrlAndPath: React.Dispatch<
+    React.SetStateAction<{ url: string; path: string }>
+  >;
 }) {
   const theme = useMantineTheme();
   const notifications = useNotifications();
@@ -107,7 +110,12 @@ export default function FirstStep({
     setisUploading(true);
 
     try {
-      await uploadFromBlobAsync(URL.createObjectURL(image), image.name);
+      const { url, path } = await uploadFromBlobAsync(
+        URL.createObjectURL(image),
+        image.name
+      );
+      console.log(`${path} uploaded`);
+      setUrlAndPath({ url, path });
     } catch (_) {
       setisUploading(false);
       notifications.showNotification({
