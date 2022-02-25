@@ -23,6 +23,7 @@ import { FileRejection } from "react-dropzone";
 import { useNotifications } from "@mantine/notifications";
 import { uploadFromBlobAsync } from "../api/Storage";
 import { Player } from "@lottiefiles/react-lottie-player";
+
 import UploadingIcon from "../components/lottie/uploading.json";
 
 function ImageUploadIcon({

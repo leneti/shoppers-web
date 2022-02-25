@@ -1,10 +1,12 @@
 import { useState } from "react";
-import "./App.css";
+
 import { firebaseConfig } from "./config/secret";
 import { initializeApp } from "firebase/app";
-
 import { Box, Stepper } from "@mantine/core";
+
+import "./App.css";
 import FirstStep from "./steps/First";
+import SecondStep from "./steps/Second";
 
 initializeApp(firebaseConfig);
 
@@ -45,7 +47,11 @@ function App() {
             description="Image parsing"
             allowStepSelect={active > 1}
           >
-            Wait for Google Vision API to finish parsing the image
+            <SecondStep
+              nextStep={nextStep}
+              prevStep={prevStep}
+              imgStorage={imgStorage}
+            />
           </Stepper.Step>
           <Stepper.Step
             label="Final step"
