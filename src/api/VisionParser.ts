@@ -151,7 +151,13 @@ export function parseResponse(
   }[],
   debug = true,
   shortenDebugInfo = true
-) {
+): {
+  date: string | null;
+  market: string | null;
+  items: { discount?: string; name: string; price: string }[];
+  time: string | null;
+  total: number;
+} {
   /* #region  Variables */
   let shortened = shortenDebugInfo;
   let date = null,
@@ -500,7 +506,7 @@ export function parseResponse(
 
   return {
     date,
-    market: market ?? "LIDL",
+    market,
     items,
     time,
     total: items.reduce(

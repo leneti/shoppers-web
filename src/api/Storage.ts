@@ -1,4 +1,17 @@
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+
+const getPath = () => {
+  const d = new Date();
+  return `U-${d
+    .toLocaleDateString("en-GB")
+    .replace(/\//g, "-")}--${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+};
 
 export const uploadFromBlobAsync = async (
   blobUrl: RequestInfo,
@@ -15,9 +28,27 @@ export const uploadFromBlobAsync = async (
   }
 };
 
-const getPath = () => {
-  const d = new Date();
-  return `U-${d
-    .toLocaleDateString("en-GB")
-    .replace(/\//g, "-")}--${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+export const tryUploadFromBlobAsync = async (
+  blobUrl: RequestInfo,
+  name: string
+) => {
+  return getDownloadURL(ref(getStorage(), name))
+    .then(() =>
+      console.log("\u001b[33m" + `File already exists: ${name}` + "\u001b[0m")
+    )
+    .catch(() => {
+      uploadFromBlobAsync(blobUrl, name)
+        .then(({ path }) => console.log(`${path} uploaded`))
+        .catch(console.warn);
+    });
+};
+
+export const deleteFromStorage = (path: string) => {
+  deleteObject(ref(getStorage(), path))
+    .then(() => {
+      console.log(`${path} deleted`);
+    })
+    .catch((error) => {
+      console.warn(error);
+    });
 };

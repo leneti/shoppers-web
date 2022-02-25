@@ -55,12 +55,14 @@ export default function FirstStep({
   nextStep,
   prevStep,
   setUrlAndPath,
+  setImageGlobal,
 }: {
   nextStep: () => void;
   prevStep: () => void;
   setUrlAndPath: React.Dispatch<
     React.SetStateAction<{ url: string; path: string }>
   >;
+  setImageGlobal: React.Dispatch<React.SetStateAction<File | undefined>>;
 }) {
   const theme = useMantineTheme();
   const notifications = useNotifications();
@@ -73,6 +75,7 @@ export default function FirstStep({
     console.log("accepted file", file);
 
     setImage(file);
+    setImageGlobal(file);
 
     notifications.clean();
     notifications.showNotification({

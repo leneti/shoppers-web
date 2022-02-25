@@ -16,6 +16,7 @@ function App() {
     url: "",
     path: "",
   });
+  const [imageGlobal, setImageGlobal] = useState<File>();
 
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
@@ -40,6 +41,7 @@ function App() {
               nextStep={nextStep}
               prevStep={prevStep}
               setUrlAndPath={setUrlAndPath}
+              setImageGlobal={setImageGlobal}
             />
           </Stepper.Step>
           <Stepper.Step
@@ -51,6 +53,7 @@ function App() {
               nextStep={nextStep}
               prevStep={prevStep}
               imgStorage={imgStorage}
+              imageGlobal={imageGlobal}
             />
           </Stepper.Step>
           <Stepper.Step
