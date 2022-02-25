@@ -7,40 +7,38 @@ import { MantineProvider } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <MantineProvider
-      theme={{
-        colorScheme: "dark",
-        colors: {
-          primary: [
-            "#fffbeb",
-            "#fef3c7",
-            "#fde68a",
-            "#fcd34d",
-            "#fbbf24",
-            "#f59e0b",
-            "#d97706",
-            "#b45309",
-            "#92400e",
-            "#78350f",
-          ],
-          background: ["#404040", "#4a4a4a", "#363636", "#262626", "#595959"],
-          backgroundLight: [
-            "#F6F6F6",
-            "#FFF",
-            "#ECECEC",
-            "#DCDCDC",
-            "#FFF",
-            "#6F6F6F",
-          ],
-        },
-      }}
-    >
-      <NotificationsProvider>
-        <App />
-      </NotificationsProvider>
-    </MantineProvider>
-  </React.StrictMode>,
+  <MantineProvider
+    theme={{
+      colorScheme: "dark",
+      colors: {
+        primary: [
+          "#fffbeb",
+          "#fef3c7",
+          "#fde68a",
+          "#fcd34d",
+          "#fbbf24",
+          "#f59e0b",
+          "#d97706",
+          "#b45309",
+          "#92400e",
+          "#78350f",
+        ],
+        background: ["#404040", "#4a4a4a", "#363636", "#262626", "#595959"],
+        backgroundLight: [
+          "#F6F6F6",
+          "#FFF",
+          "#ECECEC",
+          "#DCDCDC",
+          "#FFF",
+          "#6F6F6F",
+        ],
+      },
+    }}
+  >
+    <NotificationsProvider>
+      <App />
+    </NotificationsProvider>
+  </MantineProvider>,
   document.getElementById("root")
 );
 

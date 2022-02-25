@@ -112,6 +112,7 @@ export default function FirstStep({
     }
 
     setisUploading(true);
+    console.log("Uploading image to storage...");
 
     try {
       const { url, path } = await uploadFromBlobAsync(
@@ -132,7 +133,7 @@ export default function FirstStep({
     }
 
     setisUploading(false);
-    nextStep();
+    setTimeout(() => nextStep(), 500);
   };
 
   const tryAgain = () => {
@@ -186,7 +187,7 @@ export default function FirstStep({
         >
           <LoadingOverlay
             visible={isUploading}
-            radius={7}
+            radius="md"
             loader={
               <>
                 <Player
