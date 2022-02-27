@@ -43,12 +43,11 @@ export const tryUploadFromBlobAsync = async (
     });
 };
 
-export const deleteFromStorage = (path: string) => {
-  deleteObject(ref(getStorage(), path))
-    .then(() => {
-      console.log(`${path} deleted`);
-    })
-    .catch((error) => {
-      console.warn(error);
-    });
+export const deleteFromStorage = async (path: string) => {
+  try {
+    await deleteObject(ref(getStorage(), path));
+    console.log(`${path} deleted`);
+  } catch (error) {
+    console.warn(error);
+  }
 };

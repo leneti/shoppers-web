@@ -208,7 +208,7 @@ export default function FirstStep({
         </div>
       )}
 
-      <Group position="center" mt="xl">
+      <Group style={{ marginBottom: 50 }} position="center" mt="xl">
         {!!image && (
           <Button variant="default" onClick={tryAgain}>
             Upload another

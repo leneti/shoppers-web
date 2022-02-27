@@ -4,7 +4,7 @@ import { Player } from "@lottiefiles/react-lottie-player";
 
 import ParsingIcon from "../components/lottie/parsing.json";
 import { GOOGLE_CLOUD_VISION_API_KEY } from "../config/secret";
-import { parseResponse } from "../api/VisionParser";
+import { parseResponse, sortResponse } from "../api/VisionParser";
 import { deleteFromStorage, tryUploadFromBlobAsync } from "../api/Storage";
 import { MONTHS } from "../config/theme";
 import { saveBillToFirestoreAsync } from "../api/Firestore";
@@ -31,10 +31,17 @@ export default function SecondStep({
   }>();
   const [isParsing, setIsParsing] = useState(true);
   const [responseFromGoogle, setResponseFromGoogle] = useState();
+  const [sortedResponse, setSortedResponse] = useState<
+    {
+      locale: string;
+      description: string;
+      boundingPoly: { vertices: { x: number; y: number }[] };
+    }[]
+  >();
 
   useEffect(() => {
     if (!!googleResponse) return;
-    (async function submitToGoogle() {
+    (async function submitToGoogle(tryNo: number) {
       try {
         let body = JSON.stringify({
           requests: [
@@ -66,8 +73,20 @@ export default function SecondStep({
         let responseJson = await response.json();
         if (!responseJson) throw new Error(`Bad responseJson: ${responseJson}`);
         console.log(responseJson);
+        if (responseJson.responses[0].hasOwnProperty("error")) {
+          if (tryNo <= 3) {
+            console.warn(
+              "responseJson error: ",
+              responseJson.responses[0].error.message
+            );
+            console.log(`Trying to call Vision API again. Try number ${tryNo}`);
+            await submitToGoogle(++tryNo);
+            return;
+          }
+        }
         let data = responseJson.responses[0].textAnnotations;
-        const parsedResponse = parseResponse(data);
+        setSortedResponse(sortResponse(data));
+        const parsedResponse = parseResponse(data, true, false); // PROD: parseResponse(data, false)
 
         setResponseFromGoogle(data);
         setGoogleResponse(parsedResponse);
@@ -77,7 +96,7 @@ export default function SecondStep({
         setIsParsing(false);
         deleteFromStorage(imgStorage.path);
       }
-    })();
+    })(1);
   }, []);
 
   useEffect(() => {
@@ -165,10 +184,10 @@ export default function SecondStep({
               marginRight: "auto",
             }}
           >
-            {!!responseFromGoogle && !isParsing && (
+            {!!responseFromGoogle && (
               <Box
                 style={{
-                  minWidth: 400,
+                  minWidth: 500,
                   textAlign: "start",
                   fontSize: 18,
                   marginBottom: 25,
@@ -182,10 +201,31 @@ export default function SecondStep({
                 />
               </Box>
             )}
-            {!!googleResponse && !isParsing && (
+            {!!sortedResponse && (
               <Box
                 style={{
-                  minWidth: 400,
+                  minWidth: 500,
+                  textAlign: "start",
+                  fontSize: 18,
+                  marginBottom: 25,
+                }}
+              >
+                <Text weight="bold">Sorted response</Text>
+                <ReactJson
+                  src={sortedResponse}
+                  theme="tomorrow"
+                  collapsed={true}
+                  enableClipboard={false}
+                  onDelete={false}
+                  onAdd={false}
+                  onEdit={false}
+                />
+              </Box>
+            )}
+            {!!googleResponse && (
+              <Box
+                style={{
+                  minWidth: 500,
                   textAlign: "start",
                   fontSize: 18,
                 }}

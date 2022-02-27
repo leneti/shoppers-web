@@ -1,130 +1,124 @@
-const MARKETS = ["LIDL", "TESCO"];
-const SKIPWORDS = [
-  "£",
-  "dundee",
-  "vat",
-  "no.",
-  "no:",
-  "соpy" /*Weird version of 'c' and 'o'*/,
-  "copy",
-  "gb350396892",
-  "card",
-  "*customer",
-  "copy*",
-  "please",
-  "retain",
-  "receipt",
-  "date:",
-  "time:",
-  "===",
-  "total",
-  "тоtal",
-  "тотal",
-  "toial",
-  "t0tal",
-  "tоtal",
-  "discount",
-  "a",
-  "b",
-  "mid:",
-  "trns",
-  "visa",
-  "prepaid",
-  "a0000000031010",
-  "***16872",
-  "dun",
-  "-city",
-  "centre",
-];
-const STOPWORDS = ["tid:", "sale"];
+const SKIPWORDS = {
+  LIDL: [
+    "£",
+    "dundee",
+    "vat",
+    "no.",
+    "no:",
+    "соpy",
+    "copy",
+    "gb350396892",
+    "card",
+    "*customer",
+    "copy*",
+    "please",
+    "retain",
+    "receipt",
+    "date:",
+    "time:",
+    "===",
+    "total",
+    "тоtal",
+    "тотal",
+    "toial",
+    "t0tal",
+    "tоtal",
+    "discount",
+    "a",
+    "b",
+    "mid:",
+    "trns",
+    "visa",
+    "prepaid",
+    "a0000000031010",
+    "***16872",
+    "dun",
+    "-city",
+    "centre",
+  ],
+  ALDI: ["stores", "gushetfaulds", "st", "glasgow", "gbp", "a", "b"],
+  COOP: [
+    "store:",
+    "crown",
+    "street",
+    "(sf)",
+    "tel:",
+    "01414",
+    "206510",
+    "qty",
+    "item",
+  ],
+};
+const STOPWORDS = {
+  LIDL: ["tid:", "sale"],
+  ALDI: ["card", "number:", "************"],
+  COOP: ["credit/debit", "becoming", "earned:"],
+};
 
 /* #region  Helper Functions */
-/**
- * @param {string} val
- * @returns `true` if the input string parses to an integer, and `false` otherwise
- */
 function isInteger(val: string) {
   if (!/^-?\d+$/.test(val)) return false;
   let intVal = parseInt(val);
   return parseFloat(val) === intVal && !isNaN(intVal);
 }
 
-/**
- * @param {string} dateStr
- * @returns The date `string` if the input matches a date format, or `null`
- */
 function parseDate(dateStr: string) {
   const parsedDate = dateStr.match(/[0-3][0-9][./-][0-1][0-9][./-][0-9][0-9]/); // Matches the UK date locale
   return parsedDate ? parsedDate[0] : null;
 }
 
-/**
- * @param {string} timeStr
- * @returns The time `string` if the input parses to a specific time, otherwise `null`
- */
 function parseTime(timeStr: string) {
   const parsedTime = timeStr.match(/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]/);
   return parsedTime ? parsedTime[0] : null;
 }
 
-/**
- * Checks whether the input string is the price of an item
- * @param {string} str
- * @returns The price, if the input string can be parsed into a float or null
- */
 function checkPrice(str: string) {
   let pr = str.includes(" ") ? str.split(" ")[0] : str;
   pr.replace("A", "").replace("B", "");
   return /^[-]?\d+[.]\d{2}$/.test(pr) ? pr : null;
 }
 
-/**
- * Checks whether the given string is a name of a market
- * @param {string} str
- * @returns Market name if the input string is a market, or null
- */
-function checkMarket(str: string) {
-  const mStr = str.toLowerCase().split(" ");
-  for (const market of MARKETS) if (mStr.includes(market)) return market;
+function checkMarket(
+  str: string,
+  str2: string = ""
+): "LIDL" | "ALDI" | "COOP" | null {
+  let mStr = str.toUpperCase().split(" ");
+  mStr.push(str2.toUpperCase());
+
+  if (mStr.includes("ALDI")) return "ALDI";
+
+  if (mStr.includes("COOP") || (mStr.includes("CO") && mStr.includes("OP")))
+    return "COOP";
 
   if (
-    (str[0] === "L" && str.substr(2, 2) === "DL" && str.length < 7) ||
-    (str.substr(0, 3) === "LID" && str.length < 7) ||
-    (str.substr(0, 3) === "LDL" && str.length < 6) ||
-    str.substr(0, 4) === "LinL"
+    mStr.includes("LIDL") ||
+    (str[0] === "L" && str.substring(2, 4) === "DL" && str.length < 7) ||
+    (mStr.includes("L") && mStr.includes("DL")) ||
+    (str.substring(0, 3) === "LID" && str.length < 7) ||
+    (str.substring(0, 3) === "LDL" && str.length < 6) ||
+    str.substring(0, 4) === "LinL"
   )
     return "LIDL";
+
   return null;
 }
 
-/**
- * @param {string} str
- * @returns The annotation type of the input string
- */
-function checkAnnotationType(str: string) {
+function checkAnnotationType(str: string, str2: string = "") {
   if (str[str.length - 1] === ",") return "hanging";
   if (parseDate(str)) return "date";
   if (parseTime(str)) return "time";
-  if (checkMarket(str)) return "market";
+  if (checkMarket(str, str2)) return "market";
   if (checkPrice(str)) return "number";
   if (isInteger(str)) return "int";
   return "text";
 }
 
-/**
- * @param {string} str
- * @returns `true` if the input string is a name of an item and `false` otherwise
- */
 function checkItemName(str: string) {
   let numAlpha = 0;
   for (const ch of str) if (/[a-zA-Z]/.test(ch)) numAlpha++;
   return numAlpha > 2;
 }
 
-/**
- * @param {{x:number, y:number}[]} vertices
- * @returns The minimum and max `x` and `y` values of the given vertices
- */
 function getMinMaxes(vertices: { x: number; y: number }[]) {
   return vertices.reduce(
     (a, c) => ({
@@ -136,13 +130,70 @@ function getMinMaxes(vertices: { x: number; y: number }[]) {
     { xmin: 99999, xmax: 0, ymin: 99999, ymax: 0 }
   );
 }
+
+function skipOrStop(
+  anno: {
+    locale: string;
+    description: string;
+    boundingPoly: { vertices: { x: number; y: number }[] };
+  },
+  market: "LIDL" | "ALDI" | "COOP" | null,
+  debug: boolean,
+  shortened: boolean
+) {
+  if (!!market) {
+    for (const stopword of STOPWORDS[market]) {
+      if (anno.description.toLowerCase().split(" ").includes(stopword)) {
+        if (debug && !shortened) console.log(`  ${anno.description} (stopped)`);
+        return "stop";
+      }
+    }
+
+    for (const skipword of SKIPWORDS[market]) {
+      if (anno.description.toLowerCase().split(" ").includes(skipword)) {
+        if (debug && !shortened) console.log(`  ${anno.description} (skipped)`);
+        return "skip";
+      }
+    }
+  }
+
+  return false;
+}
+
+export function sortResponse(
+  textAnnotations: {
+    locale: string;
+    description: string;
+    boundingPoly: { vertices: { x: number; y: number }[] };
+  }[]
+): {
+  locale: string;
+  description: string;
+  boundingPoly: { vertices: { x: number; y: number }[] };
+}[] {
+  return textAnnotations.slice(1).sort((a, b) => {
+    const aMinMax = getMinMaxes(a.boundingPoly.vertices);
+    const bMinMax = getMinMaxes(b.boundingPoly.vertices);
+    const tLineOverlap =
+      Math.min(bMinMax.ymax - aMinMax.ymin, aMinMax.ymax - bMinMax.ymin) /
+      Math.max(bMinMax.ymax - bMinMax.ymin, aMinMax.ymax - aMinMax.ymin);
+
+    if (tLineOverlap < 0.4)
+      return aMinMax.ymin < bMinMax.ymin
+        ? -1
+        : aMinMax.ymin > bMinMax.ymin
+        ? 1
+        : 0;
+
+    return aMinMax.xmin < bMinMax.xmin
+      ? -1
+      : aMinMax.xmin > bMinMax.xmin
+      ? 1
+      : 0;
+  });
+}
 /* #endregion */
 
-/**
- * Parses the Google Cloud Vision API's response.
- * @param {{locale: string, description: string, boundingPoly: {vertices: {x: number, y: number}[]}}[]} textAnnotations googleResponseJson.responses[0].textAnnotations
- * @returns {{date: string, market: string, items: {discount?: string, name: string, price: string}[], time: string, total: number}} An object of the dates, markets and items bought
- */
 export function parseResponse(
   textAnnotations: {
     locale: string;
@@ -153,7 +204,7 @@ export function parseResponse(
   shortenDebugInfo = true
 ): {
   date: string | null;
-  market: string | null;
+  market: "LIDL" | "ALDI" | "COOP" | null;
   items: { discount?: string; name: string; price: string }[];
   time: string | null;
   total: number;
@@ -162,7 +213,7 @@ export function parseResponse(
   let shortened = shortenDebugInfo;
   let date = null,
     time = null,
-    market = null,
+    market: "LIDL" | "ALDI" | "COOP" | null = null,
     items: {
       name: string;
       price: string;
@@ -170,37 +221,13 @@ export function parseResponse(
     }[] = [],
     parsedToY = 0,
     baseAnn = textAnnotations[0],
-    minmaxes = getMinMaxes(baseAnn.boundingPoly.vertices),
-    g_xmin = minmaxes.xmin,
-    g_xmax = minmaxes.xmax,
-    g_ymin = minmaxes.ymin,
-    g_ymax = minmaxes.ymax,
-    sortedAnnotations = textAnnotations.slice(1).sort((a, b) => {
-      const aMinMax = getMinMaxes(a.boundingPoly.vertices);
-      const bMinMax = getMinMaxes(b.boundingPoly.vertices);
-      const tLineOverlap =
-        Math.min(bMinMax.ymax - aMinMax.ymin, aMinMax.ymax - bMinMax.ymin) /
-        Math.max(bMinMax.ymax - bMinMax.ymin, aMinMax.ymax - aMinMax.ymin);
-
-      if (tLineOverlap < 0.4)
-        return aMinMax.ymin < bMinMax.ymin
-          ? -1
-          : aMinMax.ymin > bMinMax.ymin
-          ? 1
-          : 0;
-
-      return aMinMax.xmin < bMinMax.xmin
-        ? -1
-        : aMinMax.xmin > bMinMax.xmin
-        ? 1
-        : 0;
-    }),
+    { xmax: g_xmax } = getMinMaxes(baseAnn.boundingPoly.vertices),
+    sortedAnnotations = sortResponse(textAnnotations),
     currentName = "",
     currentPrice = null,
     skipThis = false,
     seenPrices: number[] = [],
     seenIndexes: number[] = [],
-    annotation,
     type,
     lineHeight,
     currentPriceY,
@@ -212,105 +239,93 @@ export function parseResponse(
     lineOverlap,
     cType,
     usedIdx = [],
-    usedPr = [],
-    cSkipThis = false;
+    usedPr = [];
   /* #endregion */
 
   for (let i = 0; i < sortedAnnotations.length; i++) {
     if (seenIndexes.includes(i) || seenPrices.includes(i)) continue;
-    // if (i > 10) shortened = true;
-    annotation = sortedAnnotations[i];
     skipThis = false;
 
-    for (const stopword of STOPWORDS) {
-      if (annotation.description.toLowerCase().split(" ").includes(stopword)) {
-        if (debug && !shortened)
-          console.log(`Stopping: "${annotation.description}"`);
-        skipThis = true;
-        i = sortedAnnotations.length;
-        break;
-      }
-    }
-
-    for (const skipword of SKIPWORDS) {
-      if (annotation.description.toLowerCase().split(" ").includes(skipword)) {
-        if (debug && !shortened)
-          console.log(`Skipping: "${annotation.description}"`);
-        currentName = "";
-        skipThis = true;
-        break;
-      }
-    }
-
-    if (skipThis) continue;
-
-    if (
-      annotation.description === "L" &&
-      sortedAnnotations[i + 1].description === "DL"
-    ) {
-      if (debug) console.log(`"L DL" type: market`);
-      seenIndexes.push(i, i + 1);
-      market = "LIDL";
+    let skipOrStopAnswer = skipOrStop(
+      sortedAnnotations[i],
+      market,
+      debug,
+      shortened
+    );
+    if (skipOrStopAnswer === "stop") {
+      break;
+    } else if (skipOrStopAnswer === "skip") {
+      seenIndexes.push(i);
       continue;
     }
 
-    type = checkAnnotationType(annotation.description);
-    if (debug) console.log(`"${annotation.description}" type: ${type}`);
-    if (type === "date") {
-      date = parseDate(annotation.description);
-    } else if (type === "time") {
-      time = parseTime(annotation.description);
-    } else if (type === "market") {
-      market = checkMarket(annotation.description);
-    } /* if (type === "text" || type === "int") */ else {
-      minmaxes = getMinMaxes(annotation.boundingPoly.vertices);
-      let xmin = minmaxes.xmin,
-        xmax = minmaxes.xmax,
-        ymin = minmaxes.ymin,
-        ymax = minmaxes.ymax;
+    type = checkAnnotationType(
+      sortedAnnotations[i].description,
+      sortedAnnotations[i + 1]?.description ?? ""
+    );
 
-      usedIdx = [];
+    if (debug)
+      console.log(`"${sortedAnnotations[i].description}" type: ${type}`);
+
+    if (type === "date") {
+      date = parseDate(sortedAnnotations[i].description);
+      seenIndexes.push(i);
+    } else if (type === "time") {
+      time = parseTime(sortedAnnotations[i].description);
+      seenIndexes.push(i);
+    } else if (type === "market") {
+      market = checkMarket(
+        sortedAnnotations[i].description,
+        sortedAnnotations[i + 1]?.description ?? ""
+      );
+      seenIndexes.push(i);
+    } /* if (type === "text" || type === "int") */ else if (
+      !market ||
+      market === "LIDL"
+    ) {
+      let { xmax, ymin, ymax } = getMinMaxes(
+        sortedAnnotations[i].boundingPoly.vertices
+      );
+
+      usedIdx = [i];
       usedPr = [];
 
       if (xmax > g_xmax / 2 || (ymax + ymin) / 2 < parsedToY) continue;
 
       lineHeight = ymax - ymin;
-      currentName += annotation.description;
+      currentName += sortedAnnotations[i].description;
       currentPrice = null;
       currentPriceY = 0;
       currentPriceX = 0;
       isHanging = false;
       cDescription = "";
 
-      if (debug) console.log(`Comparing ${annotation.description}:`);
+      if (debug) console.log(`Comparing ${sortedAnnotations[i].description}:`);
       for (let j = 0; j < sortedAnnotations.length; j++) {
-        if (i === j) continue;
+        if (i === j || seenIndexes.includes(j) || seenPrices.includes(j))
+          continue;
         cAnno = sortedAnnotations[j];
-        cSkipThis = false;
 
-        for (const stopword of STOPWORDS) {
-          if (cAnno.description.toLowerCase().split(" ").includes(stopword)) {
-            if (debug && !shortened)
-              console.log(`  ${cAnno.description} (stopped)`);
-            j = sortedAnnotations.length;
-            cSkipThis = true;
-            break;
-          }
+        let skipOrStopAnswer = skipOrStop(cAnno, market, debug, shortened);
+        if (skipOrStopAnswer === "stop") {
+          break;
+        } else if (skipOrStopAnswer === "skip") {
+          seenIndexes.push(j);
+          continue;
         }
 
-        for (const skipword of SKIPWORDS) {
-          if (cAnno.description.toLowerCase().split(" ").includes(skipword)) {
-            cSkipThis = true;
-            break;
-          }
-        }
-        if (cSkipThis) continue;
+        let {
+          xmin: cxmin,
+          xmax: cxmax,
+          ymin: cymin,
+          ymax: cymax,
+        } = getMinMaxes(cAnno.boundingPoly.vertices);
 
-        cMinMax = getMinMaxes(cAnno.boundingPoly.vertices);
-        let cxmin = cMinMax.xmin,
-          cxmax = cMinMax.xmax,
-          cymin = cMinMax.ymin,
-          cymax = cMinMax.ymax;
+        if (cymin > ymax + lineHeight * 5) {
+          if (debug && !shortened)
+            console.log("Too far. Moving on to the next word.");
+          break;
+        }
 
         if (cymax < ymin || cymin > ymax) {
           if (debug && !shortened)
@@ -333,6 +348,7 @@ export function parseResponse(
         } else cDescription = cAnno.description;
 
         cType = checkAnnotationType(cDescription);
+
         if (cType === "hanging") {
           isHanging = true;
           if (debug && !shortened) console.log(`  ${cDescription} (hanging)`);
@@ -341,12 +357,7 @@ export function parseResponse(
         if (cType === "number") {
           if (cxmax < g_xmax * 0.75) {
             currentName += " " + cDescription;
-            // Separate item price
-            continue;
-          }
-          if (seenPrices.includes(j)) {
-            if (debug && !shortened)
-              console.log(`  ${cDescription} (seen price)`);
+            // Qty x Price of single item
             continue;
           }
           if (
@@ -399,20 +410,15 @@ export function parseResponse(
         if (cType === "int") {
           if (cxmax > g_xmax * 0.75) {
             if (
-              checkAnnotationType(sortedAnnotations[j + 1].description) ===
+              checkAnnotationType(sortedAnnotations[j + 1]?.description) ===
               "int"
             ) {
-              cDescription += `.${sortedAnnotations[j + 1].description}`;
+              cDescription += `.${sortedAnnotations[j + 1]?.description}`;
               let tempType = checkAnnotationType(cDescription);
               if (tempType === "number") {
                 if (cxmax < g_xmax * 0.75) {
                   currentName += " " + cDescription;
                   // Single item cost
-                  continue;
-                }
-                if (seenPrices.includes(j)) {
-                  if (debug && !shortened)
-                    console.log(`  ${cDescription} (seen price)`);
                   continue;
                 }
                 if (
@@ -456,7 +462,12 @@ export function parseResponse(
       if (currentPrice) {
         seenPrices.push(...usedPr);
         seenIndexes.push(...usedIdx);
-        if (debug && !shortened) console.log(`Seen indices: ${seenIndexes}`);
+        if (debug && !shortened)
+          console.log(
+            `Seen indices and prices: ${[...seenIndexes, ...seenPrices].sort(
+              (a, b) => a - b
+            )}`
+          );
         skipThis = !checkItemName(currentName);
         if (!skipThis) {
           if (currentPrice.startsWith("-")) {
@@ -474,12 +485,7 @@ export function parseResponse(
               name: currentName,
               price: currentPrice,
             });
-            if (debug)
-              console.log(
-                "\u001b[32m" +
-                  `Item: ${currentName}   ${currentPrice}` +
-                  "\u001b[0m"
-              );
+            if (debug) console.log(`Item: ${currentName}   ${currentPrice}`);
           }
           currentName = "";
           currentPrice = null;
@@ -494,12 +500,7 @@ export function parseResponse(
         items.push(lastItem);
         currentName = "";
         currentPrice = null;
-        if (debug)
-          console.log(
-            "\u001b[92m" +
-              `Updated ${lastItem.name}   ${lastItem.price}` +
-              "\u001b[0m"
-          );
+        if (debug) console.log(`Updated ${lastItem.name}   ${lastItem.price}`);
       }
     }
   }
@@ -507,8 +508,8 @@ export function parseResponse(
   return {
     date,
     market,
-    items,
     time,
+    items,
     total: items.reduce(
       (a, c) => a + parseFloat(c.price) + parseFloat(c.discount ?? "0"),
       0
