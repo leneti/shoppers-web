@@ -36,7 +36,7 @@ const SKIPWORDS = {
     "-city",
     "centre",
   ],
-  ALDI: ["stores", "gushetfaulds", "st", "glasgow", "gbp", "a", "b"],
+  ALDI: ["stores", "41", "gushetfaulds", "st", "glasgow", "gbp", "a", "b"],
   COOP: [
     "store:",
     "crown",
@@ -192,6 +192,15 @@ export function sortResponse(
       : 0;
   });
 }
+
+function wordEndsAfterPercent(
+  xmax: number,
+  g_xmax: number,
+  g_xmin: number,
+  percent: number
+) {
+  return xmax - g_xmin > (g_xmax - g_xmin) * (percent / 100);
+}
 /* #endregion */
 
 export function parseResponse(
@@ -221,7 +230,7 @@ export function parseResponse(
     }[] = [],
     parsedToY = 0,
     baseAnn = textAnnotations[0],
-    { xmax: g_xmax } = getMinMaxes(baseAnn.boundingPoly.vertices),
+    { xmax: g_xmax, xmin: g_xmin } = getMinMaxes(baseAnn.boundingPoly.vertices),
     sortedAnnotations = sortResponse(textAnnotations),
     currentName = "",
     currentPrice = null,
@@ -238,8 +247,8 @@ export function parseResponse(
     cMinMax,
     lineOverlap,
     cType,
-    usedIdx = [],
-    usedPr = [];
+    usedIdx: number[] = [],
+    usedPr: number[] = [];
   /* #endregion */
 
   for (let i = 0; i < sortedAnnotations.length; i++) {
@@ -279,10 +288,7 @@ export function parseResponse(
         sortedAnnotations[i + 1]?.description ?? ""
       );
       seenIndexes.push(i);
-    } /* if (type === "text" || type === "int") */ else if (
-      !market ||
-      market === "LIDL"
-    ) {
+    } else {
       let { xmax, ymin, ymax } = getMinMaxes(
         sortedAnnotations[i].boundingPoly.vertices
       );
@@ -290,7 +296,21 @@ export function parseResponse(
       usedIdx = [i];
       usedPr = [];
 
-      if (xmax > g_xmax / 2 || (ymax + ymin) / 2 < parsedToY) continue;
+      if (
+        wordEndsAfterPercent(xmax, g_xmax, g_xmin, 60) ||
+        (ymax + ymin) / 2 < parsedToY
+      )
+        continue;
+
+      if (
+        market === "ALDI" &&
+        !wordEndsAfterPercent(xmax, g_xmax, g_xmin, 30) &&
+        type === "int"
+      ) {
+        seenIndexes.push(i);
+        usedIdx = [];
+        continue;
+      }
 
       lineHeight = ymax - ymin;
       currentName += sortedAnnotations[i].description;
@@ -386,7 +406,7 @@ export function parseResponse(
           if (debug) console.log(`  ${cDescription} (price)`);
         }
         if (cType === "text") {
-          if (cxmax > g_xmax * 0.75) {
+          if (wordEndsAfterPercent(cxmax, g_xmax, g_xmin, 75)) {
             if (debug && !shortened)
               console.log(`  ${cDescription} (not an item)`);
             continue;
@@ -463,11 +483,9 @@ export function parseResponse(
         seenPrices.push(...usedPr);
         seenIndexes.push(...usedIdx);
         if (debug && !shortened)
-          console.log(
-            `Seen indices and prices: ${[...seenIndexes, ...seenPrices].sort(
-              (a, b) => a - b
-            )}`
-          );
+          console.log("Seen indices and prices: ", {
+            idx: [...seenIndexes, ...seenPrices].sort((a, b) => a - b),
+          });
         skipThis = !checkItemName(currentName);
         if (!skipThis) {
           if (currentPrice.startsWith("-")) {
@@ -476,9 +494,7 @@ export function parseResponse(
             items.push({ ...lastItem, discount: currentPrice });
             if (debug)
               console.log(
-                "\u001b[92m" +
-                  `Updated ${lastItem.name}   ${lastItem.price}   Discount${currentPrice}` +
-                  "\u001b[0m"
+                `Updated ${lastItem.name}   ${lastItem.price}   Discount${currentPrice}`
               );
           } else {
             items.push({

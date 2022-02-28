@@ -32,15 +32,23 @@ export const tryUploadFromBlobAsync = async (
   blobUrl: RequestInfo,
   name: string
 ) => {
-  return getDownloadURL(ref(getStorage(), name))
-    .then(() =>
-      console.log("\u001b[33m" + `File already exists: ${name}` + "\u001b[0m")
-    )
-    .catch(() => {
-      uploadFromBlobAsync(blobUrl, name)
-        .then(({ path }) => console.log(`${path} uploaded`))
-        .catch(console.warn);
-    });
+  const exists = await checkIfExists(name);
+  if (!exists) {
+    return uploadFromBlobAsync(blobUrl, name)
+      .then(({ path }) => console.log(`${path} uploaded`))
+      .catch(console.warn);
+  } else {
+    console.log(`File already exists: ${name}`);
+  }
+};
+
+const checkIfExists = async (name: string) => {
+  try {
+    await getDownloadURL(ref(getStorage(), name));
+    return true;
+  } catch (error) {
+    return false;
+  }
 };
 
 export const deleteFromStorage = async (path: string) => {

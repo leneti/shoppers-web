@@ -208,16 +208,16 @@ export default function FirstStep({
         </div>
       )}
 
-      <Group style={{ marginBottom: 50 }} position="center" mt="xl">
-        {!!image && (
-          <Button variant="default" onClick={tryAgain}>
+      {!!image && (
+        <Group style={{ marginBottom: 50 }} position="center" mt="xl">
+          <Button variant="default" onClick={tryAgain} loading={isUploading}>
             Upload another
           </Button>
-        )}
-        <Button color="yellow" onClick={tryUploadImage}>
-          Next step
-        </Button>
-      </Group>
+          <Button color="yellow" onClick={tryUploadImage} loading={isUploading}>
+            Next step
+          </Button>
+        </Group>
+      )}
     </Box>
   );
 }
