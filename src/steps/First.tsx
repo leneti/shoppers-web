@@ -21,9 +21,9 @@ import {
 import { Dropzone, IMAGE_MIME_TYPE, DropzoneStatus } from "@mantine/dropzone";
 import { FileRejection } from "react-dropzone";
 import { useNotifications } from "@mantine/notifications";
-import { uploadFromBlobAsync } from "../api/Storage";
 import { Player } from "@lottiefiles/react-lottie-player";
 
+import { uploadFromBlobAsync } from "../api/Storage";
 import UploadingIcon from "../components/lottie/uploading.json";
 
 function ImageUploadIcon({
@@ -110,6 +110,8 @@ export default function FirstStep({
       });
       return;
     }
+    notifications.clean();
+    notifications.cleanQueue();
 
     setisUploading(true);
     console.log("Uploading image to storage...");
@@ -121,6 +123,8 @@ export default function FirstStep({
       );
       console.log(`${path} uploaded`);
       setUrlAndPath({ url, path });
+      setisUploading(false);
+      setTimeout(() => nextStep(), 500);
     } catch (_) {
       setisUploading(false);
       notifications.showNotification({
@@ -131,9 +135,6 @@ export default function FirstStep({
         icon: <Cross1Icon />,
       });
     }
-
-    setisUploading(false);
-    setTimeout(() => nextStep(), 500);
   };
 
   const tryAgain = () => {
