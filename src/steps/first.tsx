@@ -55,12 +55,14 @@ export default function FirstStep({
   nextStep,
   prevStep,
   setUrlAndPath,
+  setImageGlobal,
 }: {
   nextStep: () => void;
   prevStep: () => void;
   setUrlAndPath: React.Dispatch<
     React.SetStateAction<{ url: string; path: string }>
   >;
+  setImageGlobal: React.Dispatch<React.SetStateAction<File | undefined>>;
 }) {
   const theme = useMantineTheme();
   const notifications = useNotifications();
@@ -73,6 +75,7 @@ export default function FirstStep({
     console.log("accepted file", file);
 
     setImage(file);
+    setImageGlobal(file);
 
     notifications.clean();
     notifications.showNotification({
@@ -109,6 +112,7 @@ export default function FirstStep({
     }
 
     setisUploading(true);
+    console.log("Uploading image to storage...");
 
     try {
       const { url, path } = await uploadFromBlobAsync(
@@ -129,7 +133,7 @@ export default function FirstStep({
     }
 
     setisUploading(false);
-    nextStep();
+    setTimeout(() => nextStep(), 500);
   };
 
   const tryAgain = () => {
@@ -183,7 +187,7 @@ export default function FirstStep({
         >
           <LoadingOverlay
             visible={isUploading}
-            radius={7}
+            radius="md"
             loader={
               <>
                 <Player
@@ -204,16 +208,16 @@ export default function FirstStep({
         </div>
       )}
 
-      <Group position="center" mt="xl">
-        {!!image && (
-          <Button variant="default" onClick={tryAgain}>
+      {!!image && (
+        <Group style={{ marginBottom: 50 }} position="center" mt="xl">
+          <Button variant="default" onClick={tryAgain} loading={isUploading}>
             Upload another
           </Button>
-        )}
-        <Button color="yellow" onClick={tryUploadImage}>
-          Next step
-        </Button>
-      </Group>
+          <Button color="yellow" onClick={tryUploadImage} loading={isUploading}>
+            Next step
+          </Button>
+        </Group>
+      )}
     </Box>
   );
 }

@@ -16,6 +16,14 @@ function App() {
     url: "",
     path: "",
   });
+  const [imageGlobal, setImageGlobal] = useState<File>();
+  const [googleResGlobal, setGoogleResGlobal] = useState<{
+    date: string | null;
+    market: string | null;
+    items: { discount?: string; name: string; price: string }[];
+    time: string | null;
+    total: number;
+  }>();
 
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
@@ -40,6 +48,7 @@ function App() {
               nextStep={nextStep}
               prevStep={prevStep}
               setUrlAndPath={setUrlAndPath}
+              setImageGlobal={setImageGlobal}
             />
           </Stepper.Step>
           <Stepper.Step
@@ -50,7 +59,9 @@ function App() {
             <SecondStep
               nextStep={nextStep}
               prevStep={prevStep}
+              setGoogleResGlobal={setGoogleResGlobal}
               imgStorage={imgStorage}
+              imageGlobal={imageGlobal}
             />
           </Stepper.Step>
           <Stepper.Step
