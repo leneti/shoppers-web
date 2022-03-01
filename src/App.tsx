@@ -12,11 +12,12 @@ import ThirdStep from "./steps/Third";
 initializeApp(firebaseConfig);
 
 const DEV = true;
-const mockGoogleResponse = `{"date":"06/02/22","market":"ALDI","time":"14:00:36","items":[{"name":"CHEDDAR GRATED","price":"2.49"},{"name":"CHICKEN FILLETS","price":"3.49"},{"name":"GRANOLA 1KG","price":"1.45"},{"name":"BANANAS 5PK","price":"0.69"},{"name":"CARROT 1KG","price":"0.40"},{"name":"KIWI FRUIT","price":"0.59"},{"name":"LETTUCE LITTLE GEM","price":"0.49"},{"name":"PRINGLES","price":"1.65"},{"name":"CUCUMBER","price":"0.43"},{"name":"E/E SPAGHETTI 500G","price":"0.20"},{"name":"TEA FRUIT& HERB","price":"0.75"},{"name":"BAGELS PLAIN 5PK","price":"0.79"},{"name":"BREAD WHT TOASTIE","price":"0.49"},{"name":"PINEAPPLE","price":"0.75"},{"name":"NECTARINES","price":"0.95"},{"name":"BUTTER SALTED 250G","price":"1.48"},{"name":"STOCK CUBES 120G","price":"0.35"},{"name":"STOCK CUBES 120G","price":"0.35"},{"name":"STOCK CUBES 120G","price":"0.35"},{"name":"BRAEBURN APPLES","price":"1.19"},{"name":"SALMON SMKD SCO","price":"3.99"},{"name":"TORILLA WRAP PLAIN","price":"0.75"},{"name":"FLIX N MIX","price":"1.49"},{"name":"CHOCO E/E MILK","price":"0.30"},{"name":"CHOCO E/E MILK","price":"0.30"},{"name":"YOGURT F FREE 450G","price":"0.75"},{"name":"YOGURT F FREE 450G","price":"0.75"},{"name":"YOGURT F FREE 450G","price":"0.75"}],"total":28.410000000000007}`;
+const mockGoogleResponse = `{"date":"06/02/22","market":"ALDI","time":"14:00:36","items":[{"name":"Cheddar Grated","price":"2.49"},{"name":"Chicken Fillets","price":"3.49"},{"name":"Granola 1kg","price":"1.45"},{"name":"Bananas 5pk","price":"0.69"},{"name":"Carrot 1kg","price":"0.40"},{"name":"Kiwi Fruit","price":"0.59"},{"name":"Lettuce Little Gem","price":"0.49"},{"name":"Pringles","price":"1.65"},{"name":"Cucumber","price":"0.43"},{"name":"E/e Spaghetti 500g","price":"0.20"},{"name":"Tea Fruit& Herb","price":"0.75"},{"name":"Bagels Plain 5pk","price":"0.79"},{"name":"Bread Wht Toastie","price":"0.49"},{"name":"Pineapple","price":"0.75"},{"name":"Nectarines","price":"0.95"},{"name":"Butter Salted 250g","price":"1.48"},{"name":"Stock Cubes 120g","price":"0.35"},{"name":"Stock Cubes 120g","price":"0.35"},{"name":"Stock Cubes 120g","price":"0.35"},{"name":"Braeburn Apples","price":"1.19"},{"name":"Salmon Smkd Sco","price":"3.99"},{"name":"Torilla Wrap Plain","price":"0.75"},{"name":"Flix N Mix","price":"1.49"},{"name":"Choco E/e Milk","price":"0.30"},{"name":"Choco E/e Milk","price":"0.30"},{"name":"Yogurt F Free 450g","price":"0.75"},{"name":"Yogurt F Free 450g","price":"0.75"},{"name":"Yogurt F Free 450g","price":"0.75"}],"total":28.410000000000007}`;
 
 function App() {
   const [active, setActive] = useState(0);
-  const [imgStorage, setUrlAndPath] = useState<{ url: string; path: string }>({
+
+  const [imgStorage, setUrlAndPath] = useState({
     url: "",
     path: "",
   });
@@ -28,6 +29,11 @@ function App() {
     time: string | null;
     total: number;
   }>();
+  const [allListsGlobal, setAllListsGlobal] = useState<{
+    common: { discount?: string; name: string; price: string }[];
+    dom: { discount?: string; name: string; price: string }[];
+    emilija: { discount?: string; name: string; price: string }[];
+  }>({ common: [], dom: [], emilija: [] });
 
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
@@ -77,8 +83,11 @@ function App() {
               nextStep={nextStep}
               prevStep={prevStep}
               googleResGlobal={
-                DEV ? JSON.parse(mockGoogleResponse) : googleResGlobal
+                DEV && !googleResGlobal
+                  ? JSON.parse(mockGoogleResponse)
+                  : googleResGlobal
               }
+              setAllListsGlobal={setAllListsGlobal}
             />
           </Stepper.Step>
           <Stepper.Completed>

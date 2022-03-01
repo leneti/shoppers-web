@@ -1,18 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   DragDropContext,
   DraggableLocation,
   DropResult,
 } from "@react-forked/dnd";
+import { Box } from "@mantine/core";
+import { useViewportSize } from "@mantine/hooks";
 
 import Column from "./Column";
-import { Box } from "@mantine/core";
 
 export default function Container({
   googleResGlobal,
   grid,
   listContainerStyle,
+  setAllListsGlobal,
 }: {
   googleResGlobal: {
     date: string | null;
@@ -23,12 +25,23 @@ export default function Container({
   };
   grid: number;
   listContainerStyle: React.CSSProperties | undefined;
+  setAllListsGlobal: React.Dispatch<
+    React.SetStateAction<{
+      common: { discount?: string; name: string; price: string }[];
+      dom: { discount?: string; name: string; price: string }[];
+      emilija: { discount?: string; name: string; price: string }[];
+    }>
+  >;
 }) {
+  const { width } = useViewportSize();
+
   const [allLists, setAllLists] = useState<{
     common: { discount?: string; name: string; price: string }[];
     dom: { discount?: string; name: string; price: string }[];
     emilija: { discount?: string; name: string; price: string }[];
   }>({ common: googleResGlobal.items, dom: [], emilija: [] });
+
+  useEffect(() => setAllListsGlobal(allLists), []);
 
   function reorder(
     list: { discount?: string; name: string; price: string }[],
@@ -91,26 +104,37 @@ export default function Container({
         destination.index
       );
 
-      setAllLists((p) => ({
-        ...p,
-        [sourceListId]: itemsReordered,
-      }));
+      setAllLists((p) => {
+        const result = {
+          ...p,
+          [sourceListId]: itemsReordered,
+        };
+        setAllListsGlobal(result);
+        return result;
+      });
     } else {
       const result = move(source, destination, sourceListId, destListId);
 
       setAllLists(result);
+      setAllListsGlobal(result);
     }
   }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Box style={{ display: "flex", flexDirection: "row" }}>
+      <Box
+        style={{
+          display: "flex",
+          flexDirection: width > 1350 ? "row" : "column",
+        }}
+      >
         <Column
           listID="common"
           items={allLists.common}
           grid={grid}
           listContainerStyle={listContainerStyle}
           title="All items"
+          footer="Total price:"
         />
         <Column
           listID="dom"
@@ -118,6 +142,7 @@ export default function Container({
           grid={grid}
           listContainerStyle={listContainerStyle}
           title="Dom's items"
+          footer="Dom's total:"
         />
         <Column
           listID="emilija"
@@ -125,6 +150,7 @@ export default function Container({
           grid={grid}
           listContainerStyle={listContainerStyle}
           title="Emilija's items"
+          footer="Emilija's total:"
         />
       </Box>
     </DragDropContext>

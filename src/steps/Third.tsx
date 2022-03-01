@@ -1,4 +1,4 @@
-import React, { useState, useEffect, CSSProperties } from "react";
+import React, { useState } from "react";
 
 import { Box, Text, useMantineTheme } from "@mantine/core";
 import ReactJson from "react-json-view";
@@ -11,6 +11,7 @@ export default function ThirdStep({
   nextStep,
   prevStep,
   googleResGlobal,
+  setAllListsGlobal,
 }: {
   nextStep: () => void;
   prevStep: () => void;
@@ -23,6 +24,13 @@ export default function ThirdStep({
         total: number;
       }
     | undefined;
+  setAllListsGlobal: React.Dispatch<
+    React.SetStateAction<{
+      common: { discount?: string; name: string; price: string }[];
+      dom: { discount?: string; name: string; price: string }[];
+      emilija: { discount?: string; name: string; price: string }[];
+    }>
+  >;
 }) {
   const theme = useMantineTheme();
 
@@ -44,10 +52,25 @@ export default function ThirdStep({
         </Box>
       )}
 
+      {!!googleResGlobal && DEV && (
+        <Box
+          style={{
+            minWidth: 500,
+            textAlign: "start",
+            fontSize: 18,
+            marginBottom: 25,
+          }}
+        >
+          <Text weight="bold">Google response</Text>
+          <Text>{JSON.stringify(googleResGlobal)}</Text>
+        </Box>
+      )}
+
       {!!googleResGlobal && (
         <DnDContainer
           googleResGlobal={googleResGlobal}
-          grid={8}
+          setAllListsGlobal={setAllListsGlobal}
+          grid={10}
           listContainerStyle={{ width: 300, marginTop: 20 }}
         />
       )}
