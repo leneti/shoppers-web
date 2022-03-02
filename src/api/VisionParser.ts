@@ -1,3 +1,25 @@
+export type Market = "LIDL" | "ALDI" | "COOP" | null;
+
+export interface ItemData {
+  name: string;
+  price: string;
+  discount?: string;
+}
+
+export interface ParsedData {
+  date: string | null;
+  market: Market;
+  items: ItemData[];
+  time: string | null;
+  total: number;
+}
+
+export interface Annotation {
+  locale: string;
+  description: string;
+  boundingPoly: { vertices: { x: number; y: number }[] };
+}
+
 const SKIPWORDS = {
   LIDL: [
     "£",
@@ -78,10 +100,7 @@ function checkPrice(str: string) {
   return /^[-]?\d+[.]\d{2}$/.test(pr) ? pr : null;
 }
 
-function checkMarket(
-  str: string,
-  str2: string = ""
-): "LIDL" | "ALDI" | "COOP" | null {
+function checkMarket(str: string, str2: string = ""): Market {
   let mStr = str.toUpperCase().split(" ");
   mStr.push(str2.toUpperCase());
 
@@ -137,7 +156,7 @@ function skipOrStop(
     description: string;
     boundingPoly: { vertices: { x: number; y: number }[] };
   },
-  market: "LIDL" | "ALDI" | "COOP" | null,
+  market: Market,
   debug: boolean,
   shortened: boolean
 ) {
@@ -160,17 +179,7 @@ function skipOrStop(
   return false;
 }
 
-export function sortResponse(
-  textAnnotations: {
-    locale: string;
-    description: string;
-    boundingPoly: { vertices: { x: number; y: number }[] };
-  }[]
-): {
-  locale: string;
-  description: string;
-  boundingPoly: { vertices: { x: number; y: number }[] };
-}[] {
+export function sortResponse(textAnnotations: Annotation[]): Annotation[] {
   return textAnnotations.slice(1).sort((a, b) => {
     const aMinMax = getMinMaxes(a.boundingPoly.vertices);
     const bMinMax = getMinMaxes(b.boundingPoly.vertices);
@@ -210,30 +219,16 @@ function capitaliseWords(str: string) {
 /* #endregion */
 
 export function parseResponse(
-  textAnnotations: {
-    locale: string;
-    description: string;
-    boundingPoly: { vertices: { x: number; y: number }[] };
-  }[],
+  textAnnotations: Annotation[],
   debug = true,
   shortenDebugInfo = true
-): {
-  date: string | null;
-  market: "LIDL" | "ALDI" | "COOP" | null;
-  items: { discount?: string; name: string; price: string }[];
-  time: string | null;
-  total: number;
-} {
+): ParsedData {
   /* #region  Variables */
   let shortened = shortenDebugInfo;
   let date = null,
     time = null,
-    market: "LIDL" | "ALDI" | "COOP" | null = null,
-    items: {
-      name: string;
-      price: string;
-      discount?: string;
-    }[] = [],
+    market: Market = null,
+    items: ItemData[] = [],
     parsedToY = 0,
     baseAnn = textAnnotations[0],
     { xmax: g_xmax, xmin: g_xmin } = getMinMaxes(baseAnn.boundingPoly.vertices),
@@ -250,7 +245,6 @@ export function parseResponse(
     isHanging,
     cDescription,
     cAnno,
-    cMinMax,
     lineOverlap,
     cType,
     usedIdx: number[] = [],

@@ -9,6 +9,7 @@ import {
   NotDraggingStyle,
 } from "@react-forked/dnd";
 import { Box, MantineTheme, Text, useMantineTheme } from "@mantine/core";
+import { ItemData } from "../../api/VisionParser";
 
 function isDragged(
   dragStyle: DraggingStyle | NotDraggingStyle
@@ -24,8 +25,6 @@ function getItemStyle(
   listContainerStyle: React.CSSProperties | undefined,
   virtualStyle?: CSSProperties
 ): CSSProperties {
-  const itemWidth = listContainerStyle?.width ?? 300;
-
   const combined = {
     ...virtualStyle,
     ...draggableStyle,
@@ -70,7 +69,7 @@ export default function Item({
   listContainerStyle,
 }: {
   grid: number;
-  item: { discount?: string; name: string; price: string };
+  item: ItemData;
   index: number;
   vStyle: CSSProperties;
   listContainerStyle: React.CSSProperties | undefined;
@@ -122,7 +121,7 @@ export function ItemClone({
   listContainerStyle,
 }: {
   grid: number;
-  item: { discount?: string; name: string; price: string };
+  item: ItemData;
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
   listContainerStyle: React.CSSProperties | undefined;

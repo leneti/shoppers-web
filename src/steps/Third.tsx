@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 
-import { Box, Button, Group, Text, useMantineTheme } from "@mantine/core";
+import { Box, Button, Group, Text } from "@mantine/core";
 import ReactJson from "react-json-view";
 
-import DnDContainer from "../components/DragAndDrop/Container";
+import DnDContainer, { ThreeLists } from "../components/DragAndDrop/Container";
+import { ParsedData } from "../api/VisionParser";
 
 const DEV = false;
 
@@ -15,25 +16,9 @@ export default function ThirdStep({
 }: {
   nextStep: () => void;
   prevStep: (toStart: boolean) => void;
-  googleResGlobal:
-    | {
-        date: string | null;
-        market: string | null;
-        items: { discount?: string; name: string; price: string }[];
-        time: string | null;
-        total: number;
-      }
-    | undefined;
-  setAllListsGlobal: React.Dispatch<
-    React.SetStateAction<{
-      common: { discount?: string; name: string; price: string }[];
-      dom: { discount?: string; name: string; price: string }[];
-      emilija: { discount?: string; name: string; price: string }[];
-    }>
-  >;
+  googleResGlobal: ParsedData | undefined;
+  setAllListsGlobal: React.Dispatch<React.SetStateAction<ThreeLists>>;
 }) {
-  const theme = useMantineTheme();
-
   return (
     <Box>
       <div>Separate items from the common list</div>

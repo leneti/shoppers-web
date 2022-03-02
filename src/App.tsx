@@ -8,6 +8,9 @@ import "./App.css";
 import FirstStep from "./steps/First";
 import SecondStep from "./steps/Second";
 import ThirdStep from "./steps/Third";
+import FinalStep from "./steps/Final";
+import { ParsedData } from "./api/VisionParser";
+import { ThreeLists } from "./components/DragAndDrop/Container";
 
 initializeApp(firebaseConfig);
 
@@ -22,18 +25,12 @@ function App() {
     path: "",
   });
   const [imageGlobal, setImageGlobal] = useState<File>();
-  const [googleResGlobal, setGoogleResGlobal] = useState<{
-    date: string | null;
-    market: string | null;
-    items: { discount?: string; name: string; price: string }[];
-    time: string | null;
-    total: number;
-  }>();
-  const [allListsGlobal, setAllListsGlobal] = useState<{
-    common: { discount?: string; name: string; price: string }[];
-    dom: { discount?: string; name: string; price: string }[];
-    emilija: { discount?: string; name: string; price: string }[];
-  }>({ common: [], dom: [], emilija: [] });
+  const [googleResGlobal, setGoogleResGlobal] = useState<ParsedData>();
+  const [allListsGlobal, setAllListsGlobal] = useState<ThreeLists>({
+    common: [],
+    dom: [],
+    emilija: [],
+  });
 
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
@@ -91,7 +88,7 @@ function App() {
             />
           </Stepper.Step>
           <Stepper.Completed>
-            Visit Splitwise to settle expenses
+            <FinalStep allListsGlobal={allListsGlobal} />
           </Stepper.Completed>
         </Stepper>
       </Box>
