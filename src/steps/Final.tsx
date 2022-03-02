@@ -3,6 +3,8 @@ import { Box, Button, Slider, Text, useMantineTheme } from "@mantine/core";
 import { ThreeLists } from "../components/DragAndDrop/Container";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 
+const DEV = false;
+
 export default function FinalStep({
   allListsGlobal,
 }: {
@@ -80,21 +82,23 @@ export default function FinalStep({
         Split: <b>Dom</b> {(domRatio * 100).toFixed(0)}/
         {((1 - domRatio) * 100).toFixed(0)} <b>Emilija</b>
       </Text>
-      <Slider
-        color="primary"
-        value={domRatio * 100}
-        onChange={(value) => setDomRatio(value / 100)}
-        min={0}
-        max={100}
-        label={null}
-        step={1}
-        style={{ width: 200, margin: "auto" }}
-      />
+      {DEV && (
+        <Slider
+          color="primary"
+          value={domRatio * 100}
+          onChange={(value) => setDomRatio(value / 100)}
+          min={0}
+          max={100}
+          label={null}
+          step={1}
+          style={{ width: 200, margin: "auto" }}
+        />
+      )}
       <Total
         price={totals.dom}
         label="Dom's total:"
         size={20}
-        style={{ justifyContent: "space-between", width: 200 }}
+        style={{ justifyContent: "space-between", width: 200, marginTop: 50 }}
       />
       <Total
         price={totals.emilija}
@@ -107,7 +111,7 @@ export default function FinalStep({
         <Button
           component="a"
           target="_blank"
-          href="https://secure.splitwise.com/#/all"
+          href="https://secure.splitwise.com/#/groups/25925993"
           leftIcon={<ExternalLinkIcon />}
           color="primary"
           variant="outline"

@@ -19,6 +19,7 @@ export default function SecondStep({
   nextStep,
   prevStep,
   setGoogleResGlobal,
+  setFirestorePathGlobal,
   imgStorage,
   imageGlobal,
 }: {
@@ -27,6 +28,7 @@ export default function SecondStep({
   setGoogleResGlobal: React.Dispatch<
     React.SetStateAction<ParsedData | undefined>
   >;
+  setFirestorePathGlobal: React.Dispatch<React.SetStateAction<string>>;
   imgStorage: { url: string; path: string };
   imageGlobal: File | undefined;
 }) {
@@ -137,7 +139,7 @@ export default function SecondStep({
     }-${!date ? new Date().getUTCDate() : date.substring(0, 2)}--${
       !time ? new Date().getTime() : time.substring(0, 5)
     }`;
-
+    setFirestorePathGlobal(newPath);
     if (!DEV) uploadToFirestore(newPath);
     else setFPath(newPath);
   }, [googleResponse]);
