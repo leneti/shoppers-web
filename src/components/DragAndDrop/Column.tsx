@@ -5,6 +5,7 @@ import { Droppable, DroppableProvided } from "@react-forked/dnd";
 import { FixedSizeList } from "react-window";
 
 import Item, { ItemClone } from "./Item";
+import { ItemData } from "../../api/VisionParser";
 
 interface RowProps {
   data: {
@@ -24,7 +25,7 @@ export default function Column({
   title,
   footer,
 }: {
-  items: { discount?: string; name: string; price: string }[];
+  items: ItemData[];
   grid: number;
   listContainerStyle: React.CSSProperties | undefined;
   listID: string;

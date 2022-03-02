@@ -7,7 +7,7 @@ import { useNotifications } from "@mantine/notifications";
 import { Cross1Icon } from "@modulz/radix-icons";
 
 import { GOOGLE_CLOUD_VISION_API_KEY } from "../config/secret";
-import { parseResponse, sortResponse } from "../api/VisionParser";
+import { ParsedData, parseResponse, sortResponse } from "../api/VisionParser";
 import { deleteFromStorage, tryUploadFromBlobAsync } from "../api/Storage";
 import { MONTHS } from "../config/theme";
 import { saveBillToFirestoreAsync } from "../api/Firestore";
@@ -19,23 +19,16 @@ export default function SecondStep({
   nextStep,
   prevStep,
   setGoogleResGlobal,
+  setFirestorePathGlobal,
   imgStorage,
   imageGlobal,
 }: {
   nextStep: () => void;
   prevStep: () => void;
   setGoogleResGlobal: React.Dispatch<
-    React.SetStateAction<
-      | {
-          date: string | null;
-          market: string | null;
-          items: { discount?: string; name: string; price: string }[];
-          time: string | null;
-          total: number;
-        }
-      | undefined
-    >
+    React.SetStateAction<ParsedData | undefined>
   >;
+  setFirestorePathGlobal: React.Dispatch<React.SetStateAction<string>>;
   imgStorage: { url: string; path: string };
   imageGlobal: File | undefined;
 }) {
@@ -146,7 +139,7 @@ export default function SecondStep({
     }-${!date ? new Date().getUTCDate() : date.substring(0, 2)}--${
       !time ? new Date().getTime() : time.substring(0, 5)
     }`;
-
+    setFirestorePathGlobal(newPath);
     if (!DEV) uploadToFirestore(newPath);
     else setFPath(newPath);
   }, [googleResponse]);

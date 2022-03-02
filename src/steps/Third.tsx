@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 
-import { Box, Button, Group, Text, useMantineTheme } from "@mantine/core";
+import { Box, Button, Group, Text } from "@mantine/core";
 import ReactJson from "react-json-view";
 
-import DnDContainer from "../components/DragAndDrop/Container";
+import DnDContainer, { ThreeLists } from "../components/DragAndDrop/Container";
+import { ParsedData } from "../api/VisionParser";
+import { updateFirestoreDoc } from "../api/Firestore";
 
 const DEV = false;
 
@@ -12,27 +14,54 @@ export default function ThirdStep({
   prevStep,
   googleResGlobal,
   setAllListsGlobal,
+  allListsGlobal,
+  firestorePathGlobal,
 }: {
   nextStep: () => void;
   prevStep: (toStart: boolean) => void;
-  googleResGlobal:
-    | {
-        date: string | null;
-        market: string | null;
-        items: { discount?: string; name: string; price: string }[];
-        time: string | null;
-        total: number;
-      }
-    | undefined;
-  setAllListsGlobal: React.Dispatch<
-    React.SetStateAction<{
-      common: { discount?: string; name: string; price: string }[];
-      dom: { discount?: string; name: string; price: string }[];
-      emilija: { discount?: string; name: string; price: string }[];
-    }>
-  >;
+  googleResGlobal: ParsedData | undefined;
+  setAllListsGlobal: React.Dispatch<React.SetStateAction<ThreeLists>>;
+  allListsGlobal: ThreeLists;
+  firestorePathGlobal: string;
 }) {
-  const theme = useMantineTheme();
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  function calculateTotals() {
+    const commonTotal = allListsGlobal.common.reduce(
+      (a, c) => a + parseFloat(c.price) + parseFloat(c.discount ?? "0"),
+      0
+    );
+    const emilijaTotal =
+      allListsGlobal.emilija.reduce(
+        (a, c) => a + parseFloat(c.price) + parseFloat(c.discount ?? "0"),
+        0
+      ) +
+      commonTotal * 0.4;
+    const domTotal =
+      allListsGlobal.dom.reduce(
+        (a, c) => a + parseFloat(c.price) + parseFloat(c.discount ?? "0"),
+        0
+      ) +
+      commonTotal * 0.6;
+    return {
+      both: commonTotal,
+      em: emilijaTotal,
+      dom: domTotal,
+      full: emilijaTotal + domTotal,
+    };
+  }
+
+  async function updateFirestore() {
+    setIsUpdating(true);
+    const data = {
+      totals: calculateTotals(),
+      emilija: allListsGlobal.emilija,
+      dom: allListsGlobal.dom,
+      common: allListsGlobal.common,
+    };
+    await updateFirestoreDoc(firestorePathGlobal, data);
+    nextStep();
+  }
 
   return (
     <Box>
@@ -76,10 +105,14 @@ export default function ThirdStep({
       )}
 
       <Group style={{ marginTop: 50 }} position="center" mt="xl">
-        <Button variant="default" onClick={() => prevStep(true)}>
+        <Button
+          variant="default"
+          onClick={() => prevStep(true)}
+          loading={isUpdating}
+        >
           Try again
         </Button>
-        <Button color="yellow" onClick={nextStep}>
+        <Button color="yellow" onClick={updateFirestore} loading={isUpdating}>
           Split it!
         </Button>
       </Group>

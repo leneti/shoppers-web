@@ -9,6 +9,13 @@ import { Box } from "@mantine/core";
 import { useViewportSize } from "@mantine/hooks";
 
 import Column from "./Column";
+import { ParsedData } from "../../api/VisionParser";
+
+export interface ThreeLists {
+  common: { discount?: string; name: string; price: string }[];
+  dom: { discount?: string; name: string; price: string }[];
+  emilija: { discount?: string; name: string; price: string }[];
+}
 
 export default function Container({
   googleResGlobal,
@@ -16,30 +23,18 @@ export default function Container({
   listContainerStyle,
   setAllListsGlobal,
 }: {
-  googleResGlobal: {
-    date: string | null;
-    market: string | null;
-    items: { discount?: string; name: string; price: string }[];
-    time: string | null;
-    total: number;
-  };
+  googleResGlobal: ParsedData;
   grid: number;
   listContainerStyle: React.CSSProperties | undefined;
-  setAllListsGlobal: React.Dispatch<
-    React.SetStateAction<{
-      common: { discount?: string; name: string; price: string }[];
-      dom: { discount?: string; name: string; price: string }[];
-      emilija: { discount?: string; name: string; price: string }[];
-    }>
-  >;
+  setAllListsGlobal: React.Dispatch<React.SetStateAction<ThreeLists>>;
 }) {
   const { width } = useViewportSize();
 
-  const [allLists, setAllLists] = useState<{
-    common: { discount?: string; name: string; price: string }[];
-    dom: { discount?: string; name: string; price: string }[];
-    emilija: { discount?: string; name: string; price: string }[];
-  }>({ common: googleResGlobal.items, dom: [], emilija: [] });
+  const [allLists, setAllLists] = useState<ThreeLists>({
+    common: googleResGlobal.items,
+    dom: [],
+    emilija: [],
+  });
 
   useEffect(() => setAllListsGlobal(allLists), [allLists]);
 
