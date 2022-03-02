@@ -201,6 +201,12 @@ function wordEndsAfterPercent(
 ) {
   return xmax - g_xmin > (g_xmax - g_xmin) * (percent / 100);
 }
+
+function capitaliseWords(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/(^\w{1})|(\s+\w{1})/g, (ch) => ch.toUpperCase());
+}
 /* #endregion */
 
 export function parseResponse(
@@ -498,10 +504,13 @@ export function parseResponse(
               );
           } else {
             items.push({
-              name: currentName,
+              name: capitaliseWords(currentName),
               price: currentPrice,
             });
-            if (debug) console.log(`Item: ${currentName}   ${currentPrice}`);
+            if (debug)
+              console.log(
+                `Item: ${capitaliseWords(currentName)}   ${currentPrice}`
+              );
           }
           currentName = "";
           currentPrice = null;

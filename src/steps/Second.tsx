@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 
 import { Player } from "@lottiefiles/react-lottie-player";
-
-import ParsingIcon from "../components/lottie/parsing.json";
 import ReactJson from "react-json-view";
+import { Box, Button, Group, Image, LoadingOverlay, Text } from "@mantine/core";
+import { useNotifications } from "@mantine/notifications";
+import { Cross1Icon } from "@modulz/radix-icons";
+
 import { GOOGLE_CLOUD_VISION_API_KEY } from "../config/secret";
 import { parseResponse, sortResponse } from "../api/VisionParser";
 import { deleteFromStorage, tryUploadFromBlobAsync } from "../api/Storage";
 import { MONTHS } from "../config/theme";
 import { saveBillToFirestoreAsync } from "../api/Firestore";
-import { Box, Button, Group, Image, LoadingOverlay, Text } from "@mantine/core";
-import { useNotifications } from "@mantine/notifications";
-import { Cross1Icon } from "@modulz/radix-icons";
+import ParsingIcon from "../components/lottie/parsing.json";
 
 const DEV = false;
 
@@ -99,7 +99,8 @@ export default function SecondStep({
               responseJson.responses[0].error.message
             );
             console.log(`Trying to call Vision API again. Try number ${tryNo}`);
-            await submitToGoogle(++tryNo);
+            // await submitToGoogle(++tryNo);
+            setTimeout(() => submitToGoogle(++tryNo), 1000);
             return;
           }
         }
@@ -109,7 +110,7 @@ export default function SecondStep({
 
         if (DEV) setResponseFromGoogle(data);
         setGoogleResponse(parsedResponse);
-        setGoogleResGlobal(googleResponse);
+        setGoogleResGlobal(parsedResponse);
         deleteFromStorage(imgStorage.path);
       } catch (error) {
         console.warn(error);

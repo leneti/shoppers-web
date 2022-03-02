@@ -11,6 +11,7 @@
     "@mantine/modals": "^3.6.9",
     "@mantine/notifications": "^3.6.9",
     "@modulz/radix-icons": "^4.0.0",
+    "@react-forked/dnd": "^14.0.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
@@ -22,11 +23,11 @@
     "firebase": "^9.6.7",
     "intl": "^1.2.5",
     "react": "^17.0.2",
-    "react-beautiful-dnd": "^13.1.0",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-json-view": "^1.21.3",
     "react-scripts": "5.0.0",
+    "react-window": "^1.8.6",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
@@ -53,5 +54,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-window": "^1.8.5"
   }
 }
