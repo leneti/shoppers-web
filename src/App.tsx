@@ -37,8 +37,8 @@ function App() {
 
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
-  const prevStep = () =>
-    setActive((current) => (current > 0 ? current - 1 : current));
+  const prevStep = (toStart?: boolean) =>
+    setActive(toStart ? 0 : (current) => (current > 0 ? current - 1 : current));
 
   return (
     <div className="App">

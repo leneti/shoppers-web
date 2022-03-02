@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Box, Text, useMantineTheme } from "@mantine/core";
+import { Box, Button, Group, Text, useMantineTheme } from "@mantine/core";
 import ReactJson from "react-json-view";
 
 import DnDContainer from "../components/DragAndDrop/Container";
@@ -14,7 +14,7 @@ export default function ThirdStep({
   setAllListsGlobal,
 }: {
   nextStep: () => void;
-  prevStep: () => void;
+  prevStep: (toStart: boolean) => void;
   googleResGlobal:
     | {
         date: string | null;
@@ -74,6 +74,15 @@ export default function ThirdStep({
           listContainerStyle={{ width: 300, marginTop: 20 }}
         />
       )}
+
+      <Group style={{ marginTop: 50 }} position="center" mt="xl">
+        <Button variant="default" onClick={() => prevStep(true)}>
+          Try again
+        </Button>
+        <Button color="yellow" onClick={nextStep}>
+          Split it!
+        </Button>
+      </Group>
     </Box>
   );
 }

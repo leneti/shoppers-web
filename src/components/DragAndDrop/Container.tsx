@@ -41,7 +41,7 @@ export default function Container({
     emilija: { discount?: string; name: string; price: string }[];
   }>({ common: googleResGlobal.items, dom: [], emilija: [] });
 
-  useEffect(() => setAllListsGlobal(allLists), []);
+  useEffect(() => setAllListsGlobal(allLists), [allLists]);
 
   function reorder(
     list: { discount?: string; name: string; price: string }[],
@@ -104,19 +104,14 @@ export default function Container({
         destination.index
       );
 
-      setAllLists((p) => {
-        const result = {
-          ...p,
-          [sourceListId]: itemsReordered,
-        };
-        setAllListsGlobal(result);
-        return result;
-      });
+      setAllLists((p) => ({
+        ...p,
+        [sourceListId]: itemsReordered,
+      }));
     } else {
       const result = move(source, destination, sourceListId, destListId);
 
       setAllLists(result);
-      setAllListsGlobal(result);
     }
   }
 
