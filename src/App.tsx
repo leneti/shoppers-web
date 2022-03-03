@@ -14,6 +14,10 @@ import { ThreeLists } from "./components/DragAndDrop/Container";
 if (process.env.REACT_APP_FIREBASE_CONFIG)
   initializeApp(JSON.parse(process.env.REACT_APP_FIREBASE_CONFIG));
 else console.log("Could not find the firebase config");
+console.log(
+  "REACT_APP_GOOGLE_CLOUD_VISION_API_KEY: ",
+  process.env.REACT_APP_GOOGLE_CLOUD_VISION_API_KEY
+);
 
 const DEV = false;
 const mockGoogleResponse = `{"date":"06/02/22","market":"ALDI","time":"14:00:36","items":[{"name":"Cheddar Grated","price":"2.49"},{"name":"Chicken Fillets","price":"3.49"},{"name":"Granola 1kg","price":"1.45"},{"name":"Bananas 5pk","price":"0.69"},{"name":"Carrot 1kg","price":"0.40"},{"name":"Kiwi Fruit","price":"0.59"},{"name":"Lettuce Little Gem","price":"0.49"},{"name":"Pringles","price":"1.65"},{"name":"Cucumber","price":"0.43"},{"name":"E/e Spaghetti 500g","price":"0.20"},{"name":"Tea Fruit& Herb","price":"0.75"},{"name":"Bagels Plain 5pk","price":"0.79"},{"name":"Bread Wht Toastie","price":"0.49"},{"name":"Pineapple","price":"0.75"},{"name":"Nectarines","price":"0.95"},{"name":"Butter Salted 250g","price":"1.48"},{"name":"Stock Cubes 120g","price":"0.35"},{"name":"Stock Cubes 120g","price":"0.35"},{"name":"Stock Cubes 120g","price":"0.35"},{"name":"Braeburn Apples","price":"1.19"},{"name":"Salmon Smkd Sco","price":"3.99"},{"name":"Torilla Wrap Plain","price":"0.75"},{"name":"Flix N Mix","price":"1.49"},{"name":"Choco E/e Milk","price":"0.30"},{"name":"Choco E/e Milk","price":"0.30"},{"name":"Yogurt F Free 450g","price":"0.75"},{"name":"Yogurt F Free 450g","price":"0.75"},{"name":"Yogurt F Free 450g","price":"0.75"}],"total":28.410000000000007}`;
