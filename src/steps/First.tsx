@@ -84,6 +84,7 @@ export default function FirstStep({
       color: "teal",
       icon: <CheckIcon />,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rejectFiles = useCallback((files: FileRejection[]) => {
@@ -98,6 +99,7 @@ export default function FirstStep({
         icon: <Cross1Icon />,
       });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const tryUploadImage = async () => {

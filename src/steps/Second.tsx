@@ -114,6 +114,7 @@ export default function SecondStep({
         deleteFromStorage(imgStorage.path);
       }
     })(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -145,6 +146,7 @@ export default function SecondStep({
     setFirestorePathGlobal(newPath);
     if (!DEV) uploadToFirestore(newPath);
     else setFPath(newPath);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [googleResponse]);
 
   async function uploadToFirestore(firestorePath: string) {

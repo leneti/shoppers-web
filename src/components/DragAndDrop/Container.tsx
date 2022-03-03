@@ -36,6 +36,7 @@ export default function Container({
     emilija: [],
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setAllListsGlobal(allLists), [allLists]);
 
   function reorder(
