@@ -6,7 +6,6 @@ import { Box, Button, Group, Image, LoadingOverlay, Text } from "@mantine/core";
 import { useNotifications } from "@mantine/notifications";
 import { Cross1Icon } from "@modulz/radix-icons";
 
-import { GOOGLE_CLOUD_VISION_API_KEY } from "../config/secret";
 import { ParsedData, parseResponse, sortResponse } from "../api/VisionParser";
 import { deleteFromStorage, tryUploadFromBlobAsync } from "../api/Storage";
 import { MONTHS } from "../config/theme";
@@ -70,9 +69,13 @@ export default function SecondStep({
             },
           ],
         });
+        if (!process.env.REACT_APP_GOOGLE_CLOUD_VISION_API_KEY) {
+          console.log("Could not find the VisionAPI key");
+          return;
+        }
         let response = await fetch(
           "https://vision.googleapis.com/v1/images:annotate?key=" +
-            GOOGLE_CLOUD_VISION_API_KEY,
+            process.env.REACT_APP_GOOGLE_CLOUD_VISION_API_KEY,
           {
             headers: {
               Accept: "application/json",
