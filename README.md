@@ -1,46 +1,25 @@
-# Getting Started with Create React App
+# A personal CRA website for British store (Aldi & Lidl, with more to come) receipt parsing.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Step 1
 
-## Available Scripts
+You upload the image of the receipt you wish to parse
 
-In the project directory, you can run:
+![Step 1](https://firebasestorage.googleapis.com/v0/b/shoppers-34476.appspot.com/o/Step_1.png?alt=media&token=f2aa1a78-9fae-4eec-a81f-31b72149f12a)
 
-### `yarn start`
+## Step 2
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The image then gets uploaded onto its Firebase storage server, after which it is sent to Google's Cloud Vision API to be parsed for text relative to the purchase.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+![Step 2](https://firebasestorage.googleapis.com/v0/b/shoppers-34476.appspot.com/o/Step_2.png?alt=media&token=9fa12916-91bc-4a91-a12a-b62eb5ad1f35)
 
-### `yarn test`
+## Step 3
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+After the client receives the data from the receipt, it is neatly put into a general list of items. I can then divide them into three groups: items bought by me, items my girlfriend bought and the items we both paid for (granted, the price is not necessarily split equally)
 
-### `yarn build`
+![Step 3](https://firebasestorage.googleapis.com/v0/b/shoppers-34476.appspot.com/o/Step_3.png?alt=media&token=a3603512-ea56-4cb2-885e-c7c1b0ac03af)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Step 4
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+After I am done splitting the items, the webapp splits the total price into two, representing how much each of us ended up paying. The resulting totals can be noted down on Splitwise to make sure we all pay and get paid.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+![Step 4](https://firebasestorage.googleapis.com/v0/b/shoppers-34476.appspot.com/o/Step_4.png?alt=media&token=25cf9102-9c00-470d-b582-62d69387f118)
