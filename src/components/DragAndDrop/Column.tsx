@@ -48,7 +48,6 @@ export default function Column({
         item={item}
         index={index}
         vStyle={style}
-        listContainerStyle={listContainerStyle}
       />
     );
   };
@@ -96,7 +95,6 @@ export default function Column({
             }-clone`}
             provided={provided}
             snapshot={snapshot}
-            listContainerStyle={listContainerStyle}
           />
         )}
       >

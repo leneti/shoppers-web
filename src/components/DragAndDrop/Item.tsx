@@ -22,7 +22,6 @@ function getItemStyle(
   draggableStyle: DraggableStyle,
   grid: number,
   theme: MantineTheme,
-  listContainerStyle: React.CSSProperties | undefined,
   virtualStyle?: CSSProperties
 ): CSSProperties {
   const combined = {
@@ -66,13 +65,11 @@ export default function Item({
   item,
   index,
   vStyle,
-  listContainerStyle,
 }: {
   grid: number;
   item: ItemData;
   index: number;
   vStyle: CSSProperties;
-  listContainerStyle: React.CSSProperties | undefined;
 }) {
   const theme = useMantineTheme();
 
@@ -94,7 +91,6 @@ export default function Item({
                 provided.draggableProps.style,
                 grid,
                 theme,
-                listContainerStyle,
                 vStyle
               )}
             >
@@ -119,13 +115,11 @@ export function ItemClone({
   item,
   provided,
   snapshot,
-  listContainerStyle,
 }: {
   grid: number;
   item: ItemData;
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
-  listContainerStyle: React.CSSProperties | undefined;
 }) {
   const theme = useMantineTheme();
 
@@ -138,8 +132,7 @@ export function ItemClone({
         snapshot.isDragging,
         provided.draggableProps.style,
         grid,
-        theme,
-        listContainerStyle
+        theme
       )}
     >
       <Text style={{ marginLeft: 12 }} color={theme.colors.primary[4]}>
